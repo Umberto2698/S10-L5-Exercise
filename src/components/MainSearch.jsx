@@ -93,6 +93,7 @@ const MainSearch = () => {
         </Col>
         <Col xs={10} className="mx-auto">
           <Form className="flex-grow-1 me-2" onSubmit={handleSubmit}>
+            <Form.Label>Search a place</Form.Label>
             <Form.Control type="search" value={query} onChange={handleChange} placeholder="City, State, Country" />
           </Form>
         </Col>
