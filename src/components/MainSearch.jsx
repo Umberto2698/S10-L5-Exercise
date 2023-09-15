@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Spinner } from "react-bootstrap";
 import Weather from "./Weather";
 
@@ -12,6 +12,7 @@ const MainSearch = () => {
   const currentWeatherEndpoint = "https://api.openweathermap.org/data/2.5/weather?lat=";
   const forecastWeatherEndopoint = "https://api.openweathermap.org/data/2.5/forecast?lat=";
   const auth = "9a2debc8efc216b86197817b5ca361af";
+  const previousSearch = localStorage.getItem("searched");
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -22,11 +23,10 @@ const MainSearch = () => {
   let forecasterWeatherArray = [];
   let currentWeatherArray = [];
 
-  const handleSubmit = async (e) => {
+  const mainFetch = async (str) => {
     setDisplay(true);
-    e.preventDefault();
     try {
-      const geoResponse = await fetch(geoEndpoint + query + "&limit=5&appid=" + auth);
+      const geoResponse = await fetch(geoEndpoint + str + "&limit=5&appid=" + auth);
       if (geoResponse.ok) {
         const geoData = await geoResponse.json();
         for (let i = 0; i < geoData.length; i++) {
@@ -72,6 +72,19 @@ const MainSearch = () => {
     }
     setDisplay(false);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    localStorage.setItem("searched", `${query}`);
+    console.log(previousSearch);
+    mainFetch(query);
+  };
+
+  useEffect(() => {
+    if (previousSearch !== "") {
+      mainFetch(previousSearch);
+    }
+  }, []);
 
   return (
     <Container>
