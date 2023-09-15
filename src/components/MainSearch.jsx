@@ -4,8 +4,8 @@ import Weather from "./Weather";
 
 const MainSearch = () => {
   const [query, setQuery] = useState("");
-  const [currentWeather, setCurrentWeather] = useState(null);
-  const [forecastWeather, setForecastWeather] = useState(null);
+  const [currentWeather, setCurrentWeather] = useState([]);
+  const [forecastWeather, setForecastWeather] = useState([]);
   const [display, setDisplay] = useState(false);
 
   const geoEndpoint = "http://api.openweathermap.org/geo/1.0/direct?q=";
@@ -17,41 +17,49 @@ const MainSearch = () => {
     setQuery(e.target.value);
   };
 
+  let lat = [];
+  let lon = [];
+  let forecasterWeatherArray = [];
+  let currentWeatherArray = [];
+
   const handleSubmit = async (e) => {
     setDisplay(true);
-    setCurrentWeather(null);
     e.preventDefault();
     try {
-      const geoResponse = await fetch(geoEndpoint + query + "&appid=" + auth);
+      const geoResponse = await fetch(geoEndpoint + query + "&limit=5&appid=" + auth);
       if (geoResponse.ok) {
         const geoData = await geoResponse.json();
-
-        const lat = geoData[0].lat;
-        const lon = geoData[0].lon;
+        for (let i = 0; i < geoData.length; i++) {
+          lat.push(geoData[i].lat);
+          lon.push(geoData[i].lon);
+        }
 
         try {
-          const currentWeatherResponse = await fetch(
-            currentWeatherEndpoint + lat + "&lon=" + lon + "&units=metric&appid=" + auth
-          );
-          if (currentWeatherResponse.ok) {
-            const currentWeatherData = await currentWeatherResponse.json();
-            try {
-              const forecastWeatherResponse = await fetch(
-                forecastWeatherEndopoint + lat + "&lon=" + lon + "&units=metric&appid=" + auth
-              );
-              if (forecastWeatherResponse.ok) {
-                const forecastWeatherData = await forecastWeatherResponse.json();
-                setForecastWeather(forecastWeatherData);
-                setCurrentWeather(currentWeatherData);
-                setDisplay(false);
-              } else {
-                alert("Error fetching results");
+          for (let i = 0; i < lat.length; i++) {
+            const currentWeatherResponse = await fetch(
+              currentWeatherEndpoint + lat[i] + "&lon=" + lon[i] + "&units=metric&appid=" + auth
+            );
+            if (currentWeatherResponse.ok) {
+              const currentWeatherData = await currentWeatherResponse.json();
+              try {
+                const forecastWeatherResponse = await fetch(
+                  forecastWeatherEndopoint + lat[i] + "&lon=" + lon[i] + "&units=metric&appid=" + auth
+                );
+                if (forecastWeatherResponse.ok) {
+                  const forecastWeatherData = await forecastWeatherResponse.json();
+                  forecasterWeatherArray.push(forecastWeatherData);
+                  currentWeatherArray.push(currentWeatherData);
+                  setForecastWeather(forecasterWeatherArray);
+                  setCurrentWeather(currentWeatherArray);
+                } else {
+                  alert("Error fetching results ");
+                }
+              } catch (error) {
+                console.log(error);
               }
-            } catch (error) {
-              console.log(error);
+            } else {
+              alert("Error fetching results 1");
             }
-          } else {
-            alert("Error fetching results");
           }
         } catch (error) {
           console.log(error);
@@ -62,6 +70,7 @@ const MainSearch = () => {
     } catch (error) {
       console.log(error);
     }
+    setDisplay(false);
   };
 
   return (
@@ -76,7 +85,10 @@ const MainSearch = () => {
           </Form>
         </Col>
         <Col xs={10} className="mx-auto mb-5">
-          {currentWeather && <Weather currentWeather={currentWeather} forecastWeather={forecastWeather}></Weather>}
+          {!display &&
+            currentWeather.map((elem, i) => (
+              <Weather currentWeather={elem} forecastWeather={forecastWeather[i]} key={i}></Weather>
+            ))}
           {display && (
             <div className="w-100 text-center mt-5">
               <Spinner animation="grow" />
