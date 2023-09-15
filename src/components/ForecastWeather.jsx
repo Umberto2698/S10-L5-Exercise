@@ -3,7 +3,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import List from "./List";
 
-const CompanySearchResults = () => {
+const ForecastWeather = () => {
   const [forecastWeather, setForecastWeather] = useState([]);
   const [today, setToday] = useState("");
 
@@ -65,4 +65,4 @@ const CompanySearchResults = () => {
   );
 };
 
-export default CompanySearchResults;
+export default ForecastWeather;
