@@ -76,7 +76,6 @@ const MainSearch = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     localStorage.setItem("searched", `${query}`);
-    console.log(previousSearch);
     mainFetch(query);
   };
 
