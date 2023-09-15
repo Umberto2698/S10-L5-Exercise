@@ -81,6 +81,7 @@ const MainSearch = () => {
 
   useEffect(() => {
     if (previousSearch !== "") {
+      setQuery(previousSearch);
       mainFetch(previousSearch);
     }
   }, []);
